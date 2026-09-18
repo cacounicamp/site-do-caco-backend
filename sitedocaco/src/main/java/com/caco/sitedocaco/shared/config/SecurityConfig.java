@@ -39,7 +39,6 @@ public class SecurityConfig {
     // Frontend URL from application.properties:
     @Value("${app.frontend.url}")
     private String frontendUrl;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
@@ -59,17 +58,16 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Docs
 
                         // Rotas Admin (Super Admin também tem acesso)
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
 
                         // Rotas Editor (também acessíveis por Admin e Super Admin)
-                        .requestMatchers("/editor/**").hasAnyRole("EDITOR", "ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/api/editor/**").hasAnyRole("EDITOR", "ADMIN", "SUPER_ADMIN")
 
                         // Rotas Super Admin
-                        .requestMatchers("/super-admin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/api/super-admin/**").hasRole("SUPER_ADMIN")
 
                         .anyRequest().authenticated()
                 )
-
                 // 5. Configuração do Login com Google (OAuth2)
                 .oauth2Login(oauth2 -> oauth2
                         // Serviço que processa o usuário vindo do Google
