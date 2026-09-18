@@ -3,13 +3,12 @@ package com.caco.sitedocaco.modules.users.service;
 import com.caco.sitedocaco.modules.users.dto.request.UpdateProfileDTO;
 import com.caco.sitedocaco.modules.users.dto.response.UserResponseDTO;
 import com.caco.sitedocaco.modules.users.entity.User;
+import com.caco.sitedocaco.modules.whatsapp.service.WhatsAppGroupService;
 import com.caco.sitedocaco.shared.entity.ImageType;
 import com.caco.sitedocaco.shared.entity.Role;
 import com.caco.sitedocaco.shared.exception.BusinessRuleException;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
 import com.caco.sitedocaco.modules.media.infrastructure.ImgBBService;
-import com.caco.sitedocaco.shared.contract.UserAccess;
-import com.caco.sitedocaco.shared.contract.WhatsAppLinkProvider;
 import com.caco.sitedocaco.modules.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +25,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserAccess {
+public class UserService {
 
     private final UserRepository userRepository;
     private final ImgBBService imgBBService;
 
     @Lazy
     @Autowired
-    private WhatsAppLinkProvider whatsAppLinkProvider;
+    private WhatsAppGroupService whatsAppGroupService;
 
     /**
      * Pega o e-mail do Token JWT (via SecurityContext) e busca o usuário no banco.
@@ -45,7 +44,7 @@ public class UserService implements UserAccess {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário logado não encontrado no banco."));
 
-        String whatsappLink = whatsAppLinkProvider.getWhatsAppLinkForCurrentUser();
+        String whatsappLink = whatsAppGroupService.getWhatsAppLinkForCurrentUser();
         return UserResponseDTO.fromEntity(user, whatsappLink);
     }
 
@@ -80,7 +79,6 @@ public class UserService implements UserAccess {
     }
 
     @Transactional(readOnly = true)
-    @Override
     public User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
@@ -95,14 +93,12 @@ public class UserService implements UserAccess {
     }
 
     @Transactional(readOnly = true)
-    @Override
     public User getUserById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
     }
 
     @Transactional(readOnly = true)
-    @Override
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));

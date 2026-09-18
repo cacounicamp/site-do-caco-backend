@@ -4,9 +4,9 @@ import com.caco.sitedocaco.modules.home.dto.response.BannerDTO;
 import com.caco.sitedocaco.modules.home.dto.response.DashboardDTO;
 import com.caco.sitedocaco.modules.news.dto.response.NewsSummaryDTO;
 import com.caco.sitedocaco.modules.home.dto.response.WarningDTO;
+import com.caco.sitedocaco.modules.news.service.NewsService;
 import com.caco.sitedocaco.shared.security.ratelimit.RateLimit;
 import com.caco.sitedocaco.modules.home.service.BannerService;
-import com.caco.sitedocaco.shared.contract.NewsSummaryProvider;
 import com.caco.sitedocaco.modules.home.service.WarningService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class HomeController {
 
     private final BannerService bannerService;
     private final WarningService warningService;
-    private final NewsSummaryProvider newsSummaryProvider;
+    private final NewsService newsService;
 
     @GetMapping
     public ResponseEntity<DashboardDTO> getHomeDashboard() {
@@ -35,7 +35,7 @@ public class HomeController {
         List<WarningDTO> warnings = warningService.getActiveWarnings();
 
         // 3. Busca apenas as 3 últimas notícias para a capa
-        List<NewsSummaryDTO> latestNews = newsSummaryProvider.getLatestNews(3);
+        List<NewsSummaryDTO> latestNews = newsService.getLatestNews(3);
 
         // 4. Monta o objeto de resposta agregado
         DashboardDTO dashboard = new DashboardDTO(

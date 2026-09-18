@@ -1,5 +1,6 @@
 package com.caco.sitedocaco.modules.stickers.service;
 
+import com.caco.sitedocaco.modules.events.service.EventService;
 import com.caco.sitedocaco.modules.stickers.dto.request.CreateStickerDTO;
 import com.caco.sitedocaco.modules.stickers.dto.request.UpdateStickerDTO;
 import com.caco.sitedocaco.modules.stickers.dto.response.StickerAdminDTO;
@@ -8,7 +9,6 @@ import com.caco.sitedocaco.modules.events.entity.Event;
 import com.caco.sitedocaco.modules.stickers.entity.Sticker;
 import com.caco.sitedocaco.shared.exception.BusinessRuleException;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
-import com.caco.sitedocaco.shared.contract.EventReference;
 import com.caco.sitedocaco.modules.stickers.repository.StickerRepository;
 import com.caco.sitedocaco.shared.entity.ImageType;
 import com.caco.sitedocaco.modules.media.infrastructure.ImgBBService;
@@ -26,7 +26,7 @@ import java.util.UUID;
 public class StickerService {
 
     private final StickerRepository stickerRepository;
-    private final EventReference eventReference;
+    private final EventService eventService;
     private final ImgBBService imgBBService;
 
     @Transactional
@@ -48,7 +48,7 @@ public class StickerService {
         sticker.setImageUrl(imageUrl);
 
         if (dto.originEventId() != null) {
-            Event event = eventReference.getEvent(dto.originEventId());
+            Event event = eventService.getEvent(dto.originEventId());
             sticker.setOriginEvent(event);
         }
 
@@ -90,7 +90,7 @@ public class StickerService {
 
         // Atualiza o evento de origem
         if (dto.originEventId() != null) {
-            Event event = eventReference.getEvent(dto.originEventId());
+            Event event = eventService.getEvent(dto.originEventId());
             sticker.setOriginEvent(event);
         } else {
             sticker.setOriginEvent(null);

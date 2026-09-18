@@ -7,9 +7,9 @@ import com.caco.sitedocaco.modules.users.entity.User;
 import com.caco.sitedocaco.modules.stickers.entity.RedemptionCode;
 import com.caco.sitedocaco.modules.stickers.entity.Sticker;
 import com.caco.sitedocaco.modules.stickers.entity.UserSticker;
+import com.caco.sitedocaco.modules.users.service.UserService;
 import com.caco.sitedocaco.shared.exception.BusinessRuleException;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
-import com.caco.sitedocaco.shared.contract.UserAccess;
 import com.caco.sitedocaco.modules.stickers.repository.RedemptionCodeRepository;
 import com.caco.sitedocaco.modules.stickers.repository.UserStickerRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class UserStickerService {
 
-    private final UserAccess userAccess;
+    private final UserService userService;
     private final RedemptionCodeRepository redemptionCodeRepository;
     private final UserStickerRepository userStickerRepository;
 
@@ -43,7 +43,7 @@ public class UserStickerService {
             throw new BusinessRuleException("Código expirado.");
         }
 
-        User user = userAccess.getCurrentUser();
+        User user = userService.getCurrentUser();
         Sticker sticker = redemptionCode.getSticker();
 
         if (userStickerRepository.existsByUserIdAndStickerId(user.getId(), sticker.getId())) {
@@ -74,7 +74,7 @@ public class UserStickerService {
 
     @Transactional(readOnly = true)
     public Page<MyStickerDTO> myStickers(Pageable pageable) {
-        User user = userAccess.getCurrentUser();
+        User user = userService.getCurrentUser();
         return userStickerRepository.findAllByUserIdOrderByObtainedAtDesc(user.getId(), pageable)
                 .map(MyStickerDTO::fromEntity);
     }

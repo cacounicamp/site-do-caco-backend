@@ -5,6 +5,7 @@ import com.caco.sitedocaco.modules.news.dto.request.UpdateNewsDTO;
 import com.caco.sitedocaco.modules.news.dto.response.NewsDetailDTO;
 import com.caco.sitedocaco.modules.news.dto.response.NewsSummaryDTO;
 import com.caco.sitedocaco.modules.users.entity.User;
+import com.caco.sitedocaco.modules.users.service.UserService;
 import com.caco.sitedocaco.shared.entity.ImageType;
 import com.caco.sitedocaco.modules.news.entity.News;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
@@ -12,8 +13,6 @@ import com.caco.sitedocaco.modules.media.infrastructure.ImgBBService;
 import com.caco.sitedocaco.modules.news.repository.NewsRepository;
 import com.caco.sitedocaco.modules.news.repository.NewsDetailProjection;
 import com.caco.sitedocaco.modules.news.repository.NewsSummaryProjection;
-import com.caco.sitedocaco.shared.contract.NewsSummaryProvider;
-import com.caco.sitedocaco.shared.contract.UserAccess;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,10 +28,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class NewsService implements NewsSummaryProvider {
+public class NewsService {
 
     private final NewsRepository newsRepository;
-    private final UserAccess userAccess;
+    private final UserService userService;
     private final ImgBBService imgBBService;
 
     @Transactional(readOnly = true)
@@ -64,7 +63,7 @@ public class NewsService implements NewsSummaryProvider {
 
     @Transactional
     public NewsDetailDTO createNews(CreateNewsDTO dto, UUID authorId) throws IOException {
-        User author = userAccess.getUserById(authorId);
+        User author = userService.getUserById(authorId);
 
         // Valida unicidade do slug
         if (newsRepository.existsBySlug(dto.slug())) {

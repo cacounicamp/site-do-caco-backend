@@ -1,5 +1,6 @@
 package com.caco.sitedocaco.modules.whatsapp.service;
 
+import com.caco.sitedocaco.modules.users.service.UserProfileService;
 import com.caco.sitedocaco.modules.whatsapp.dto.request.WhatsAppGroupRequest;
 import com.caco.sitedocaco.modules.whatsapp.dto.response.WhatsAppGroupDTO;
 import com.caco.sitedocaco.modules.users.entity.UserProfile;
@@ -7,8 +8,6 @@ import com.caco.sitedocaco.modules.whatsapp.entity.WhatsAppGroup;
 import com.caco.sitedocaco.shared.entity.CourseType;
 import com.caco.sitedocaco.shared.exception.BusinessRuleException;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
-import com.caco.sitedocaco.shared.contract.UserProfileAccess;
-import com.caco.sitedocaco.shared.contract.WhatsAppLinkProvider;
 import com.caco.sitedocaco.modules.whatsapp.repository.WhatsAppGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,10 +19,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class WhatsAppGroupService implements WhatsAppLinkProvider {
+public class WhatsAppGroupService {
 
     private final WhatsAppGroupRepository whatsAppGroupRepository;
-    private final UserProfileAccess userProfileAccess;
+    private final UserProfileService userProfileService;
 
     // ── Admin CRUD ────────────────────────────────────────────────────────────
 
@@ -81,9 +80,8 @@ public class WhatsAppGroupService implements WhatsAppLinkProvider {
      * Somente disponível para cursos reconhecidos (não OUTRO).
      */
     @Transactional(readOnly = true)
-    @Override
     public String getWhatsAppLinkForCurrentUser() {
-        Optional<UserProfile> profileOpt = userProfileAccess.findMyProfile();
+        Optional<UserProfile> profileOpt = userProfileService.findMyProfile();
         if (profileOpt.isEmpty()) return null;
 
         UserProfile profile = profileOpt.get();

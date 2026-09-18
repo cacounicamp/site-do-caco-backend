@@ -8,7 +8,6 @@ import com.caco.sitedocaco.shared.entity.CourseType;
 import com.caco.sitedocaco.shared.exception.BusinessRuleException;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
 import com.caco.sitedocaco.modules.users.repository.UserProfileRepository;
-import com.caco.sitedocaco.shared.contract.UserProfileAccess;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserProfileService implements UserProfileAccess {
+public class UserProfileService {
 
     private static final int MIN_ENTRY_YEAR = 2018;
     private static final int UNKNOWN_ENTRY_YEAR = -1;
@@ -73,7 +72,6 @@ public class UserProfileService implements UserProfileAccess {
      * Usado internamente para enriquecer outros DTOs.
      */
     @Transactional(readOnly = true)
-    @Override
     public Optional<UserProfile> findMyProfile() {
         User currentUser = getCurrentUser();
         return userProfileRepository.findByUser(currentUser);

@@ -7,8 +7,7 @@ import com.caco.sitedocaco.modules.events.dto.request.UpdateGalleryItemDTO;
 import com.caco.sitedocaco.modules.events.dto.response.EventGalleryItemDTO;
 import com.caco.sitedocaco.modules.events.dto.response.EventResponseDTO;
 import com.caco.sitedocaco.modules.events.dto.response.EventSummaryDTO;
-import com.caco.sitedocaco.shared.contract.EventReference;
-import com.caco.sitedocaco.shared.contract.UserAccess;
+import com.caco.sitedocaco.modules.users.service.UserService;
 import com.caco.sitedocaco.modules.users.entity.User;
 import com.caco.sitedocaco.modules.events.entity.Event;
 import com.caco.sitedocaco.modules.events.entity.EventGalleryItem;
@@ -36,15 +35,14 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EventService implements EventReference {
+public class EventService {
 
     private final EventRepository eventRepository;
     private final EventGalleryItemRepository galleryItemRepository;
     private final UserEventRepository userEventRepository;
-    private final UserAccess userAccess;
+    private final UserService userService;
     private final ImgBBService imgBBService;
 
-    @Override
     @Transactional(readOnly = true)
     public Event getEvent(UUID eventId) {
         return eventRepository.findById(eventId)
@@ -76,7 +74,7 @@ public class EventService implements EventReference {
         UserEvent.ParticipationStatus userStatus = null;
         if (userId != null) {
             Optional<UserEvent> userEvent = userEventRepository.findByUserAndEvent(
-                    userAccess.getUserById(userId),
+                    userService.getUserById(userId),
                     event
             );
             userStatus = userEvent.map(UserEvent::getStatus).orElse(null);
@@ -120,7 +118,7 @@ public class EventService implements EventReference {
 
     @Transactional(readOnly = true)
     public Page<EventSummaryDTO> getUserSavedEvents(UUID userId, Pageable pageable) {
-        User user = userAccess.getUserById(userId);
+        User user = userService.getUserById(userId);
 
         // Usar o método com paginação e ordenação correta
         Page<UserEvent> userEvents = userEventRepository.findByUserOrderBySavedAtDesc(user, pageable);
@@ -131,7 +129,7 @@ public class EventService implements EventReference {
 
     @Transactional(readOnly = true)
     public UserEvent getUserEventDetails(UUID eventId, UUID userId) {
-        User user = userAccess.getUserById(userId);
+        User user = userService.getUserById(userId);
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado"));
 
@@ -141,7 +139,7 @@ public class EventService implements EventReference {
 
     @Transactional
     public void saveEventForUser(UUID eventId, UUID userId, UserEvent.ParticipationStatus status) {
-        User user = userAccess.getUserById(userId);
+        User user = userService.getUserById(userId);
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado"));
 
@@ -162,7 +160,7 @@ public class EventService implements EventReference {
 
     @Transactional
     public void unsaveEventForUser(UUID eventId, UUID userId) {
-        User user = userAccess.getUserById(userId);
+        User user = userService.getUserById(userId);
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado"));
 
@@ -171,7 +169,7 @@ public class EventService implements EventReference {
 
     @Transactional
     public void updateParticipationStatus(UUID eventId, UUID userId, UserEvent.ParticipationStatus status) {
-        User user = userAccess.getUserById(userId);
+        User user = userService.getUserById(userId);
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado"));
 
@@ -360,7 +358,7 @@ public class EventService implements EventReference {
         UserEvent.ParticipationStatus userStatus = null;
         if (userId != null) {
             Optional<UserEvent> userEvent = userEventRepository.findByUserAndEvent(
-                    userAccess.getUserById(userId),
+                    userService.getUserById(userId),
                     event
             );
             userStatus = userEvent.map(UserEvent::getStatus).orElse(null);
