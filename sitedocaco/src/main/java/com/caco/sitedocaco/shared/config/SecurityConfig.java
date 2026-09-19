@@ -1,11 +1,11 @@
 package com.caco.sitedocaco.shared.config;
 
-import com.caco.sitedocaco.modules.users.security.FormRequiredFilter;
-import com.caco.sitedocaco.modules.users.security.JwtAuthenticationFilter;
-import com.caco.sitedocaco.modules.users.security.CustomOAuth2UserService;
-import com.caco.sitedocaco.modules.users.security.CustomOidcUserService;
-import com.caco.sitedocaco.modules.users.security.OAuth2LoginFailureHandler;
-import com.caco.sitedocaco.modules.users.security.OAuth2LoginSuccessHandler;
+import com.caco.sitedocaco.features.users.security.FormRequiredFilter;
+import com.caco.sitedocaco.features.users.security.JwtAuthenticationFilter;
+import com.caco.sitedocaco.features.users.security.CustomOAuth2UserService;
+import com.caco.sitedocaco.features.users.security.CustomOidcUserService;
+import com.caco.sitedocaco.features.users.security.OAuth2LoginFailureHandler;
+import com.caco.sitedocaco.features.users.security.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
