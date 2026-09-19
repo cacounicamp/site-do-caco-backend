@@ -15,7 +15,8 @@ public enum ImageKind implements FileKind {
     NEWS_COVER    ("news-cover",     AspectRatio.R_3_2,  2400, 1600, 5L  * 1024 * 1024),
     BANNER        ("banner",         AspectRatio.R_21_9, 1920, 822,  8L  * 1024 * 1024),
     STICKER       ("sticker",        AspectRatio.SQUARE, 4000, 4000, 10L * 1024 * 1024),
-    GALLERY_ITEM  ("gallery-item",   null,               4000, 4000, 10L * 1024 * 1024);
+    GALLERY_ITEM  ("gallery-item",   null,               4000, 4000, 10L * 1024 * 1024),
+    FREE          ("free",           null,               4000, 4000, 10L * 1024 * 1024);
 
     private static final double ASPECT_TOLERANCE = 0.05; // 5%
 

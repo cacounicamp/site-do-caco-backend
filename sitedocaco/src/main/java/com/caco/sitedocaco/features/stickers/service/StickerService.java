@@ -10,14 +10,16 @@ import com.caco.sitedocaco.features.stickers.entity.Sticker;
 import com.caco.sitedocaco.shared.exception.BusinessRuleException;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
 import com.caco.sitedocaco.features.stickers.repository.StickerRepository;
-import com.caco.sitedocaco.shared.entity.ImageType;
-import com.caco.sitedocaco.features.media.infrastructure.ImgBBService;
+import com.caco.sitedocaco.shared.storage.FileStorage;
+import com.caco.sitedocaco.shared.storage.UploadRequest;
+import com.caco.sitedocaco.shared.storage.kind.ImageKind;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -27,7 +29,7 @@ public class StickerService {
 
     private final StickerRepository stickerRepository;
     private final EventService eventService;
-    private final ImgBBService imgBBService;
+    private final FileStorage fileStorage;
 
     @Transactional
     public StickerAdminDTO createSticker(CreateStickerDTO dto) throws IOException {
@@ -40,7 +42,7 @@ public class StickerService {
         }
 
         // Faz upload e valida via ImgBBService (usa ImageType específico de adesivo se existir)
-        String imageUrl = imgBBService.uploadImage(dto.image(), ImageType.PRODUCT_GALLERY);
+        String imageUrl = fileStorage.store(UploadRequest.of(dto.image(), ImageKind.STICKER)).url();
 
         Sticker sticker = new Sticker();
         sticker.setName(dto.name().trim());
@@ -84,7 +86,8 @@ public class StickerService {
 
         // Se uma nova imagem foi fornecida, faz o upload
         if (dto.image() != null && !dto.image().isEmpty()) {
-            String imageUrl = imgBBService.uploadImage(dto.image(), ImageType.PRODUCT_GALLERY);
+            String imageUrl = fileStorage.store(UploadRequest.of(dto.image(), ImageKind.STICKER)).url();
+            fileStorage.delete(sticker.getImageUrl()); // Deletes before replacing.
             sticker.setImageUrl(imageUrl);
         }
 

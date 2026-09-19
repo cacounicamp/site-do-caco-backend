@@ -1,8 +1,10 @@
-package com.caco.sitedocaco.features.media.controller.admin;
+package com.caco.sitedocaco.features.upload.controller;
 
-import com.caco.sitedocaco.features.media.dto.response.ImageUploadResponseDTO;
+import com.caco.sitedocaco.features.upload.dto.ImageUploadResponseDTO;
 import com.caco.sitedocaco.shared.security.ratelimit.RateLimit;
-import com.caco.sitedocaco.features.media.infrastructure.ImgBBService;
+import com.caco.sitedocaco.shared.storage.FileStorage;
+import com.caco.sitedocaco.shared.storage.UploadRequest;
+import com.caco.sitedocaco.shared.storage.kind.ImageKind;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -21,7 +23,7 @@ import java.io.IOException;
 @RateLimit(capacity = 10, refillTokens = 10)
 public class ImageAdminController {
 
-    private final ImgBBService imgBBService;
+    private final FileStorage fileStorage;
 
     /**
      * Upload de imagem genérica
@@ -29,7 +31,7 @@ public class ImageAdminController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageUploadResponseDTO> uploadImage(
             @RequestParam("image") @NotNull MultipartFile image) throws IOException {
-        String imageUrl = imgBBService.uploadImage(image);
+        String imageUrl = fileStorage.store(UploadRequest.of(image, ImageKind.FREE)).url();
 
         return ResponseEntity.ok(new ImageUploadResponseDTO(imageUrl));
     }

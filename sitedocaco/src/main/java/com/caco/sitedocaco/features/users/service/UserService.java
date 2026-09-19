@@ -4,12 +4,13 @@ import com.caco.sitedocaco.features.users.dto.request.UpdateProfileDTO;
 import com.caco.sitedocaco.features.users.dto.response.UserResponseDTO;
 import com.caco.sitedocaco.features.users.entity.User;
 import com.caco.sitedocaco.features.whatsapp.service.WhatsAppGroupService;
-import com.caco.sitedocaco.shared.entity.ImageType;
 import com.caco.sitedocaco.shared.entity.Role;
 import com.caco.sitedocaco.shared.exception.BusinessRuleException;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
-import com.caco.sitedocaco.features.media.infrastructure.ImgBBService;
 import com.caco.sitedocaco.features.users.repository.UserRepository;
+import com.caco.sitedocaco.shared.storage.FileStorage;
+import com.caco.sitedocaco.shared.storage.UploadRequest;
+import com.caco.sitedocaco.shared.storage.kind.ImageKind;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -28,7 +29,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ImgBBService imgBBService;
+    private final FileStorage fileStorage;
 
     @Lazy
     @Autowired
@@ -72,7 +73,7 @@ public class UserService {
 
     private String uploadAvatarImage(MultipartFile avatarFile) throws IOException {
         try {
-            return imgBBService.uploadImage(avatarFile, ImageType.PROFILE_AVATAR);
+            return fileStorage.store(UploadRequest.of(avatarFile, ImageKind.PROFILE_AVATAR)).url();
         } catch (IOException e) {
             throw new IOException("Não foi possível fazer upload da imagem do perfil", e);
         }

@@ -3,11 +3,12 @@ package com.caco.sitedocaco.features.home.service;
 import com.caco.sitedocaco.features.home.dto.request.CreateBannerDTO;
 import com.caco.sitedocaco.features.home.dto.request.UpdateBannerDTO;
 import com.caco.sitedocaco.features.home.dto.response.BannerDTO;
-import com.caco.sitedocaco.shared.entity.ImageType;
-import com.caco.sitedocaco.features.media.infrastructure.ImgBBService;
 import com.caco.sitedocaco.features.home.entity.Banner;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
 import com.caco.sitedocaco.features.home.repository.BannerRepository;
+import com.caco.sitedocaco.shared.storage.FileStorage;
+import com.caco.sitedocaco.shared.storage.UploadRequest;
+import com.caco.sitedocaco.shared.storage.kind.ImageKind;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ import java.util.UUID;
 public class BannerService {
 
     private final BannerRepository bannerRepository;
-    private final ImgBBService imgBBService;
+    private final FileStorage fileStorage;
 
     @Transactional(readOnly = true)
     public List<BannerDTO> getActiveBanners() {
@@ -45,7 +46,7 @@ public class BannerService {
 
         // Fazer upload da imagem
         if (dto.imageFile() != null && !dto.imageFile().isEmpty()) {
-            String imageUrl = imgBBService.uploadImage(dto.imageFile(), ImageType.BANNER_IMAGE);
+            String imageUrl = fileStorage.store(UploadRequest.of(dto.imageFile(), ImageKind.BANNER)).url();
             banner.setImageUrl(imageUrl);
         }
 
@@ -68,7 +69,8 @@ public class BannerService {
 
         // Atualizar imagem se fornecida
         if (dto.imageFile() != null && !dto.imageFile().isEmpty()) {
-            String imageUrl = imgBBService.uploadImage(dto.imageFile(), ImageType.BANNER_IMAGE);
+            String imageUrl = fileStorage.store(UploadRequest.of(dto.imageFile(), ImageKind.BANNER)).url();
+            fileStorage.delete(banner.getImageUrl()); // Deletes before replacing.
             banner.setImageUrl(imageUrl);
         }
 

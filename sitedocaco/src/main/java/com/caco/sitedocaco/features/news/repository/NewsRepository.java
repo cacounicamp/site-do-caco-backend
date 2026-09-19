@@ -1,5 +1,7 @@
 package com.caco.sitedocaco.features.news.repository;
 
+import com.caco.sitedocaco.features.news.dto.response.NewsDetailDTO;
+import com.caco.sitedocaco.features.news.dto.response.NewsSummaryDTO;
 import com.caco.sitedocaco.features.news.entity.News;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,26 +21,26 @@ public interface NewsRepository extends JpaRepository<News, UUID> {
     boolean existsBySlug(String slug);
 
     // Optimized Query: Returns DTOs directly, skipping the heavy 'content' field and author data
-    @Query("SELECT new com.caco.sitedocaco.modules.news.repository.NewsSummaryProjection(" +
+    @Query("SELECT new com.caco.sitedocaco.features.news.dto.response.NewsSummaryDTO(" +
             "n.id, n.title, n.slug, n.summary, n.coverImage, n.publishDate) " +
             "FROM News n ORDER BY n.publishDate DESC")
-    Page<NewsSummaryProjection> findAllSummaries(Pageable pageable);
+    Page<NewsSummaryDTO> findAllSummaries(Pageable pageable);
 
     // Full news detail by slug (includes content, without author data)
-    @Query("SELECT new com.caco.sitedocaco.modules.news.repository.NewsDetailProjection(" +
+    @Query("SELECT new com.caco.sitedocaco.features.news.dto.response.NewsDetailDTO(" +
             "n.id, n.title, n.slug, n.summary, n.content, n.coverImage, n.publishDate) " +
             "FROM News n WHERE n.slug = :slug")
-    Optional<NewsDetailProjection> findDetailBySlug(@Param("slug") String slug);
+    Optional<NewsDetailDTO> findDetailBySlug(@Param("slug") String slug);
 
     // Get all news summaries by author, paginated
-    @Query("SELECT new com.caco.sitedocaco.modules.news.repository.NewsSummaryProjection(" +
+    @Query("SELECT new com.caco.sitedocaco.features.news.dto.response.NewsSummaryDTO(" +
             "n.id, n.title, n.slug, n.summary, n.coverImage, n.publishDate) " +
             "FROM News n WHERE n.author.id = :authorId ORDER BY n.publishDate DESC")
-    Page<NewsSummaryProjection> findAllByAuthor(@Param("authorId") UUID authorId, Pageable pageable);
+    Page<NewsSummaryDTO> findAllByAuthor(@Param("authorId") UUID authorId, Pageable pageable);
 
     // Get full news detail by slug and author (for permission check)
-    @Query("SELECT new com.caco.sitedocaco.modules.news.repository.NewsDetailProjection(" +
+    @Query("SELECT new com.caco.sitedocaco.features.news.dto.response.NewsDetailDTO(" +
             "n.id, n.title, n.slug, n.summary, n.content, n.coverImage, n.publishDate) " +
             "FROM News n WHERE n.slug = :slug AND n.author.id = :authorId")
-    Optional<NewsDetailProjection> findBySlugAndAuthor(@Param("slug") String slug, @Param("authorId") UUID authorId);
+    Optional<NewsDetailDTO> findBySlugAndAuthor(@Param("slug") String slug, @Param("authorId") UUID authorId);
 }

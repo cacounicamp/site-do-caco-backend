@@ -14,10 +14,12 @@ import com.caco.sitedocaco.features.events.entity.EventGalleryItem;
 import com.caco.sitedocaco.features.events.entity.UserEvent;
 import com.caco.sitedocaco.shared.exception.BusinessRuleException;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
-import com.caco.sitedocaco.features.media.infrastructure.ImgBBService;
 import com.caco.sitedocaco.features.events.repository.EventGalleryItemRepository;
 import com.caco.sitedocaco.features.events.repository.EventRepository;
 import com.caco.sitedocaco.features.events.repository.UserEventRepository;
+import com.caco.sitedocaco.shared.storage.FileStorage;
+import com.caco.sitedocaco.shared.storage.UploadRequest;
+import com.caco.sitedocaco.shared.storage.kind.ImageKind;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,7 +43,7 @@ public class EventService {
     private final EventGalleryItemRepository galleryItemRepository;
     private final UserEventRepository userEventRepository;
     private final UserService userService;
-    private final ImgBBService imgBBService;
+    private final FileStorage fileStorage;
 
     @Transactional(readOnly = true)
     public Event getEvent(UUID eventId) {
@@ -196,7 +198,7 @@ public class EventService {
 
         String coverImageUrl = null;
         if( dto.coverImage() != null)
-            coverImageUrl = imgBBService.uploadImage(dto.coverImage());
+            coverImageUrl = fileStorage.store(UploadRequest.of(dto.coverImage(), ImageKind.EVENT_COVER)).url();
 
         event.setCoverImage(coverImageUrl);
         event.setType(dto.type());
@@ -224,7 +226,8 @@ public class EventService {
         if (dto.locationUrl() != null) event.setLocationUrl(dto.locationUrl());
         if (dto.removeCoverImage() != null && dto.removeCoverImage()) event.setCoverImage(null);
         if (dto.coverImage() != null) {
-            String coverImageUrl = imgBBService.uploadImage(dto.coverImage());
+            String coverImageUrl = fileStorage.store(UploadRequest.of(dto.coverImage(), ImageKind.EVENT_COVER)).url();
+            fileStorage.delete(event.getCoverImage()); // Deletes old before setting new.
             event.setCoverImage(coverImageUrl);
         }
         if (dto.type() != null) event.setType(dto.type());
@@ -262,7 +265,7 @@ public class EventService {
 
         // Se recebeu multipart, fazer upload da imagem
         if (dto.image() != null) {
-            String uploadedUrl = imgBBService.uploadImage(dto.image());
+            String uploadedUrl = fileStorage.store(UploadRequest.of(dto.image(), ImageKind.GALLERY_ITEM)).url();
             galleryItem.setMediaUrl(uploadedUrl);
         } else {
             // Se recebeu URL direta

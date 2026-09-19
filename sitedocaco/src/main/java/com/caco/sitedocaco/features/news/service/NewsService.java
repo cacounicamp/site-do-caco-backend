@@ -6,13 +6,12 @@ import com.caco.sitedocaco.features.news.dto.response.NewsDetailDTO;
 import com.caco.sitedocaco.features.news.dto.response.NewsSummaryDTO;
 import com.caco.sitedocaco.features.users.entity.User;
 import com.caco.sitedocaco.features.users.service.UserService;
-import com.caco.sitedocaco.shared.entity.ImageType;
 import com.caco.sitedocaco.features.news.entity.News;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
-import com.caco.sitedocaco.features.media.infrastructure.ImgBBService;
 import com.caco.sitedocaco.features.news.repository.NewsRepository;
-import com.caco.sitedocaco.features.news.repository.NewsDetailProjection;
-import com.caco.sitedocaco.features.news.repository.NewsSummaryProjection;
+import com.caco.sitedocaco.shared.storage.FileStorage;
+import com.caco.sitedocaco.shared.storage.UploadRequest;
+import com.caco.sitedocaco.shared.storage.kind.ImageKind;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +31,7 @@ public class NewsService {
 
     private final NewsRepository newsRepository;
     private final UserService userService;
-    private final ImgBBService imgBBService;
+    private final FileStorage fileStorage;
 
     @Transactional(readOnly = true)
     public List<NewsSummaryDTO> getLatestNews(int limit) {
@@ -79,7 +78,7 @@ public class NewsService {
         news.setPublishDate(LocalDateTime.now());
 
         if (dto.coverImage() != null && !dto.coverImage().isEmpty()) {
-            String url = imgBBService.uploadImage(dto.coverImage(), ImageType.NEWS_COVER);
+            String url = fileStorage.store(UploadRequest.of(dto.coverImage(), ImageKind.NEWS_COVER)).url();
             news.setCoverImage(url);
         }
 
@@ -114,7 +113,7 @@ public class NewsService {
         }
         // Upload de nova imagem (sobrescreve remoção se ambos vierem, nova imagem tem prioridade)
         if (dto.coverImage() != null && !dto.coverImage().isEmpty()) {
-            String url = imgBBService.uploadImage(dto.coverImage(), ImageType.NEWS_COVER);
+            String url = fileStorage.store(UploadRequest.of(dto.coverImage(), ImageKind.NEWS_COVER)).url();
             news.setCoverImage(url);
         }
 
@@ -150,13 +149,13 @@ public class NewsService {
         );
     }
 
-    private NewsSummaryDTO toSummary(NewsSummaryProjection projection) {
-        return new NewsSummaryDTO(projection.id(), projection.title(), projection.slug(),
-                projection.summary(), projection.coverImage(), projection.publishDate());
+    private NewsSummaryDTO toSummary(NewsSummaryDTO dto) {
+        return new NewsSummaryDTO(dto.id(), dto.title(), dto.slug(),
+                dto.summary(), dto.coverImage(), dto.publishDate());
     }
 
-    private NewsDetailDTO toDetail(NewsDetailProjection projection) {
-        return new NewsDetailDTO(projection.id(), projection.title(), projection.slug(),
-                projection.summary(), projection.content(), projection.coverImage(), projection.publishDate());
+    private NewsDetailDTO toDetail(NewsDetailDTO dto) {
+        return new NewsDetailDTO(dto.id(), dto.title(), dto.slug(),
+                dto.summary(), dto.content(), dto.coverImage(), dto.publishDate());
     }
 }

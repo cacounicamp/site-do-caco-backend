@@ -1,5 +1,4 @@
-// main/java/com.caco.sitedocaco.shared.config.ImgBBConfig.java
-package com.caco.sitedocaco.shared.config;
+package com.caco.sitedocaco.infrastructure.storage.imgBB;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
