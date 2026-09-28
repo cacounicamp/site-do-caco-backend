@@ -4,7 +4,9 @@ import com.caco.sitedocaco.features.users.dto.request.UpdateProfileDTO;
 import com.caco.sitedocaco.features.users.dto.response.UserResponseDTO;
 import com.caco.sitedocaco.shared.security.ratelimit.RateLimit;
 import com.caco.sitedocaco.features.users.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.sql.Update;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +31,13 @@ public class UserController {
     @RateLimit(capacity = 5, refillTokens = 5)
     @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponseDTO> updateMyProfile(
-            @RequestPart(value = "name", required = false) String name,
-            @RequestPart(value = "avatar", required = false) MultipartFile avatar) throws IOException {
 
-        UpdateProfileDTO dto = new UpdateProfileDTO(name, avatar);
+//            @RequestPart(value = "name", required = false) String name,
+//            @RequestPart(value = "avatar", required = false) MultipartFile avatar
+        @Valid @ModelAttribute UpdateProfileDTO dto
+    ) throws IOException {
+
+//        UpdateProfileDTO dto = new UpdateProfileDTO(name, avatar);
         return ResponseEntity.ok(userService.updateProfile(dto));
     }
 }
