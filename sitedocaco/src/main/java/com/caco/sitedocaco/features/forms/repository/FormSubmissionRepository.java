@@ -4,6 +4,8 @@ import com.caco.sitedocaco.features.forms.entity.Form;
 import com.caco.sitedocaco.features.forms.entity.FormSubmission;
 import com.caco.sitedocaco.features.users.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,4 +28,10 @@ public interface FormSubmissionRepository extends JpaRepository<FormSubmission, 
 
     boolean existsByForm(Form form);
     long countByForm(Form form);
+
+    /** Só conta entradas efetivamente enviadas — um rascunho (arquivo anexado, nunca enviado) não é uma resposta real. */
+    long countByFormAndSubmittedAtIsNotNull(Form form);
+
+    @Query("select count(distinct s.user) from FormSubmission s where s.form = :form and s.submittedAt is not null")
+    long countDistinctRespondentsByForm(@Param("form") Form form);
 }

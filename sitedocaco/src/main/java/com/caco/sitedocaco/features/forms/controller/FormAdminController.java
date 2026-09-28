@@ -6,10 +6,12 @@ import com.caco.sitedocaco.features.forms.dto.request.ReorderFormQuestionsDTO;
 import com.caco.sitedocaco.features.forms.dto.request.UpdateFormDTO;
 import com.caco.sitedocaco.features.forms.dto.request.UpdateFormQuestionDTO;
 import com.caco.sitedocaco.features.forms.dto.response.FormAdminDTO;
+import com.caco.sitedocaco.features.forms.dto.response.FormStatisticsDTO;
 import com.caco.sitedocaco.features.forms.dto.response.FormSummaryAdminDTO;
 import com.caco.sitedocaco.features.forms.dto.response.QuestionAdminDTO;
 import com.caco.sitedocaco.features.forms.service.FormAdminService;
 import com.caco.sitedocaco.features.forms.service.FormQuestionAdminService;
+import com.caco.sitedocaco.features.forms.service.FormStatisticsService;
 import com.caco.sitedocaco.shared.security.ratelimit.RateLimit;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class FormAdminController {
 
     private final FormAdminService formAdminService;
     private final FormQuestionAdminService questionAdminService;
+    private final FormStatisticsService formStatisticsService;
 
     @GetMapping
     public ResponseEntity<List<FormSummaryAdminDTO>> list() {
@@ -39,6 +42,12 @@ public class FormAdminController {
     @GetMapping("/{formId}")
     public ResponseEntity<FormAdminDTO> get(@PathVariable UUID formId) {
         return ResponseEntity.ok(formAdminService.get(formId));
+    }
+
+    /** Visão geral das respostas: uma distribuição por pergunta, para o front montar os gráficos. */
+    @GetMapping("/{formId}/statistics")
+    public ResponseEntity<FormStatisticsDTO> getStatistics(@PathVariable UUID formId) {
+        return ResponseEntity.ok(formStatisticsService.getStatistics(formId));
     }
 
     @PostMapping
