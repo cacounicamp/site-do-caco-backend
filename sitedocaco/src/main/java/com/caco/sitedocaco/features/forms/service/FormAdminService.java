@@ -49,11 +49,16 @@ public class FormAdminService {
             throw new BusinessRuleException("Já existe um formulário com esse slug.");
         }
 
+        boolean allowMultiple = Boolean.TRUE.equals(dto.allowMultipleSubmissions());
+        Integer maxPerUser = validateMaxSubmissionsPerUser(allowMultiple, dto.maxSubmissionsPerUser());
+
         Form form = new Form();
         form.setName(dto.name().strip());
         form.setSlug(dto.slug());
         form.setDescription(dto.description());
         form.setAllowEditAfterSubmit(dto.allowEditAfterSubmit() == null || dto.allowEditAfterSubmit());
+        form.setAllowMultipleSubmissions(allowMultiple);
+        form.setMaxSubmissionsPerUser(maxPerUser);
         return toAdminDTO(formRepository.save(form));
     }
 
@@ -75,12 +80,33 @@ public class FormAdminService {
             validateStatusChange(form, dto.status(), hasSubmissions);
         }
 
+        boolean allowMultiple = Boolean.TRUE.equals(dto.allowMultipleSubmissions());
+        Integer maxPerUser = validateMaxSubmissionsPerUser(allowMultiple, dto.maxSubmissionsPerUser());
+        if (allowMultiple != form.isAllowMultipleSubmissions() && hasSubmissions) {
+            throw new BusinessRuleException("O modo de múltiplas respostas não pode mudar depois que o formulário recebeu respostas.");
+        }
+
         form.setName(dto.name().strip());
         form.setSlug(dto.slug());
         form.setDescription(dto.description());
         form.setStatus(dto.status());
         form.setAllowEditAfterSubmit(dto.allowEditAfterSubmit());
+        form.setAllowMultipleSubmissions(allowMultiple);
+        form.setMaxSubmissionsPerUser(maxPerUser);
         return toAdminDTO(formRepository.save(form));
+    }
+
+    private Integer validateMaxSubmissionsPerUser(boolean allowMultiple, Integer max) {
+        if (!allowMultiple) {
+            if (max != null) {
+                throw new BusinessRuleException("maxSubmissionsPerUser só se aplica quando allowMultipleSubmissions é true.");
+            }
+            return null;
+        }
+        if (max != null && max < 1) {
+            throw new BusinessRuleException("maxSubmissionsPerUser deve ser maior que zero.");
+        }
+        return max;
     }
 
     @Transactional

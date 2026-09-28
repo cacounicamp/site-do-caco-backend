@@ -24,6 +24,12 @@ public record UpdateFormDTO(
         FormStatus status,
 
         @NotNull(message = "O campo allowEditAfterSubmit é obrigatório")
-        Boolean allowEditAfterSubmit
+        Boolean allowEditAfterSubmit,
+
+        @NotNull(message = "O campo allowMultipleSubmissions é obrigatório")
+        Boolean allowMultipleSubmissions,
+
+        /** Só válido com allowMultipleSubmissions=true. Nulo = sem limite. */
+        Integer maxSubmissionsPerUser
 ) {
 }

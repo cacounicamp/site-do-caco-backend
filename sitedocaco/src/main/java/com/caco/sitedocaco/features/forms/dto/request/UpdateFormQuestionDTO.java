@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.Set;
+
 /**
  * Substituição completa da configuração da pergunta (PUT). O código nunca muda; tipo e conjunto de
  * opções só mudam enquanto a pergunta não tiver respostas.
@@ -35,6 +37,8 @@ public record UpdateFormQuestionDTO(
         Integer minValue,
         Integer maxValue,
         String showIfQuestion,
-        String showIfOption
+        String showIfOption,
+        Set<String> allowedExtensions,
+        Integer maxFileSizeBytes
 ) implements QuestionConfig {
 }

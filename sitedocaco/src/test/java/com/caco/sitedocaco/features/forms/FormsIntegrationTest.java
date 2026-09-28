@@ -158,7 +158,7 @@ class FormsIntegrationTest {
 
     private String updateForm(String formId, String slug, String status, boolean allowEdit, int expected) throws Exception {
         return doPut("/admin/forms/" + formId, ADMIN, expected, """
-                {"name":"Inscrição","slug":"%s","description":"desc","status":"%s","allowEditAfterSubmit":%b}
+                {"name":"Inscrição","slug":"%s","description":"desc","status":"%s","allowEditAfterSubmit":%b,"allowMultipleSubmissions":false}
                 """.formatted(slug, status, allowEdit));
     }
 
@@ -384,7 +384,7 @@ class FormsIntegrationTest {
 
         // formulário com respostas
         assertThat((String) JsonPath.read(doPut(base, ADMIN, 400, """
-                {"name":"X","slug":"outro-slug","status":"OPEN","allowEditAfterSubmit":true}"""), "$.message")).contains("slug");
+                {"name":"X","slug":"outro-slug","status":"OPEN","allowEditAfterSubmit":true,"allowMultipleSubmissions":false}"""), "$.message")).contains("slug");
         assertThat((String) JsonPath.read(updateForm(f.formId(), f.slug(), "DRAFT", true, 400), "$.message")).contains("rascunho");
         assertThat((String) JsonPath.read(doDelete(base, ADMIN, 400), "$.message")).contains("não pode ser excluído");
 

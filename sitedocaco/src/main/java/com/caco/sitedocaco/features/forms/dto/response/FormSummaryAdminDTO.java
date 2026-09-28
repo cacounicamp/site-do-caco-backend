@@ -12,6 +12,8 @@ public record FormSummaryAdminDTO(
         String name,
         FormStatus status,
         boolean allowEditAfterSubmit,
+        boolean allowMultipleSubmissions,
+        Integer maxSubmissionsPerUser,
         long submissionCount,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -23,6 +25,8 @@ public record FormSummaryAdminDTO(
                 form.getName(),
                 form.getStatus(),
                 form.isAllowEditAfterSubmit(),
+                form.isAllowMultipleSubmissions(),
+                form.getMaxSubmissionsPerUser(),
                 submissionCount,
                 form.getCreatedAt(),
                 form.getUpdatedAt()

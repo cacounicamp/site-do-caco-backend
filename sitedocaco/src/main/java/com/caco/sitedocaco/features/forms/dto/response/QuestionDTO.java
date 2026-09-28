@@ -6,6 +6,7 @@ import com.caco.sitedocaco.features.forms.entity.QuestionType;
 import com.caco.sitedocaco.features.forms.entity.TextFormat;
 
 import java.util.List;
+import java.util.Set;
 
 public record QuestionDTO(
         String code,
@@ -18,9 +19,14 @@ public record QuestionDTO(
         Integer minValue,
         Integer maxValue,
         List<OptionDTO> options,
-        ConditionDTO showIf
+        ConditionDTO showIf,
+        /** Só para FILE (efetivo: já resolve o padrão quando o admin não configurou nada). */
+        Set<String> allowedExtensions,
+        /** Só para FILE (efetivo). */
+        Integer maxFileSizeBytes
 ) {
-    public static QuestionDTO from(FormQuestion question, List<FormOption> activeOptions) {
+    public static QuestionDTO from(FormQuestion question, List<FormOption> activeOptions,
+                                    Set<String> allowedExtensions, Integer maxFileSizeBytes) {
         return new QuestionDTO(
                 question.getCode(),
                 question.getPrompt(),
@@ -32,7 +38,9 @@ public record QuestionDTO(
                 question.getMinValue(),
                 question.getMaxValue(),
                 activeOptions.stream().map(OptionDTO::fromEntity).toList(),
-                ConditionDTO.fromQuestion(question)
+                ConditionDTO.fromQuestion(question),
+                allowedExtensions,
+                maxFileSizeBytes
         );
     }
 }

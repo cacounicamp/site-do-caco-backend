@@ -11,16 +11,16 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Uma linha por (formulário, usuário). Pode existir "rascunho" (submittedAt nulo) quando o usuário
- * enviou um arquivo antes de concluir o formulário; só conta como respondido após o primeiro envio válido.
+ * Uma linha por entrada respondida. Em {@link Form#isAllowMultipleSubmissions()}=false a unicidade
+ * de (formulário, usuário) é imposta em {@code FormSubmissionService}, não pelo banco: com múltiplas
+ * respostas habilitadas, várias linhas por (formulário, usuário) são o estado normal, então não há
+ * unique constraint aqui. Pode existir "rascunho" (submittedAt nulo) quando o usuário enviou um
+ * arquivo antes de concluir a entrada; só conta como respondida após o primeiro envio válido.
  */
 @Entity
 @Getter
 @Setter
-@Table(
-        name = "form_submission",
-        uniqueConstraints = @UniqueConstraint(name = "uk_form_submission_form_user", columnNames = {"form_id", "user_id"})
-)
+@Table(name = "form_submission")
 public class FormSubmission {
 
     @Id

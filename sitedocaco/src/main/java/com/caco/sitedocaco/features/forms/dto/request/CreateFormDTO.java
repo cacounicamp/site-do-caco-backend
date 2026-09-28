@@ -18,6 +18,12 @@ public record CreateFormDTO(
         String description,
 
         /** Padrão: true. */
-        Boolean allowEditAfterSubmit
+        Boolean allowEditAfterSubmit,
+
+        /** Padrão: false. */
+        Boolean allowMultipleSubmissions,
+
+        /** Só válido com allowMultipleSubmissions=true. Nulo = sem limite. */
+        Integer maxSubmissionsPerUser
 ) {
 }

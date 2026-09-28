@@ -36,6 +36,18 @@ public class Form {
     @Column(nullable = false)
     private boolean allowEditAfterSubmit = true;
 
+    /**
+     * Se true, um usuário pode ter várias {@link FormSubmission} (entradas) neste formulário, cada
+     * uma com seu próprio ciclo de vida (ver {@link #maxSubmissionsPerUser}); cada entrada continua
+     * sujeita a {@link #allowEditAfterSubmit} individualmente. Se false (padrão), é o modelo de
+     * resposta única de sempre: no máximo uma submissão por (formulário, usuário).
+     */
+    @Column(nullable = false)
+    private boolean allowMultipleSubmissions = false;
+
+    /** Só relevante com {@link #allowMultipleSubmissions}=true. Nulo = sem limite. */
+    private Integer maxSubmissionsPerUser;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

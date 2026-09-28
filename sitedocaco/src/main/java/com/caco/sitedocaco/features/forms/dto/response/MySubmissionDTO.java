@@ -8,18 +8,21 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
- * Respostas do usuário logado, indexadas pelo código da pergunta. {@code submitted} é falso enquanto
- * o formulário não foi enviado com sucesso (mesmo que já exista um arquivo anexado).
+ * Uma entrada de resposta (em formulários de resposta única, a única que pode existir), com as
+ * respostas indexadas pelo código da pergunta. {@code submitted} é falso enquanto a entrada não foi
+ * enviada com sucesso (mesmo que já exista um arquivo anexado como rascunho).
  */
 public record MySubmissionDTO(
+        UUID id,
         boolean submitted,
         LocalDateTime submittedAt,
         Map<String, AnswerDTO> answers
 ) {
     public static MySubmissionDTO empty() {
-        return new MySubmissionDTO(false, null, Map.of());
+        return new MySubmissionDTO(null, false, null, Map.of());
     }
 
     public static MySubmissionDTO from(FormSubmission submission, List<FormAnswer> answers) {
@@ -29,6 +32,6 @@ public record MySubmissionDTO(
                 .sorted(Comparator.comparingInt(a -> a.getQuestion().getDisplayOrder()))
                 .forEach(a -> byCode.put(a.getQuestion().getCode(), AnswerDTO.from(a)));
 
-        return new MySubmissionDTO(submission.getSubmittedAt() != null, submission.getSubmittedAt(), byCode);
+        return new MySubmissionDTO(submission.getId(), submission.getSubmittedAt() != null, submission.getSubmittedAt(), byCode);
     }
 }

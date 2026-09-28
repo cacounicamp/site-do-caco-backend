@@ -6,6 +6,7 @@ import com.caco.sitedocaco.features.forms.entity.Form;
 import com.caco.sitedocaco.features.forms.entity.FormOption;
 import com.caco.sitedocaco.features.forms.entity.FormQuestion;
 import com.caco.sitedocaco.features.forms.entity.FormStatus;
+import com.caco.sitedocaco.features.forms.entity.QuestionType;
 import com.caco.sitedocaco.features.forms.repository.FormOptionRepository;
 import com.caco.sitedocaco.features.forms.repository.FormQuestionRepository;
 import com.caco.sitedocaco.features.forms.repository.FormRepository;
@@ -47,9 +48,10 @@ public class FormPublicService {
                 .collect(Collectors.groupingBy(o -> o.getOptionSet().getId()));
 
         List<QuestionDTO> questionDTOs = questions.stream()
-                .map(q -> QuestionDTO.from(q, q.getOptionSet() == null
-                        ? List.of()
-                        : activeOptionsBySet.getOrDefault(q.getOptionSet().getId(), List.of())))
+                .map(q -> QuestionDTO.from(q,
+                        q.getOptionSet() == null ? List.of() : activeOptionsBySet.getOrDefault(q.getOptionSet().getId(), List.of()),
+                        q.getType() == QuestionType.FILE ? FileAnswerValidator.effectiveExtensions(q) : null,
+                        q.getType() == QuestionType.FILE ? FileAnswerValidator.effectiveMaxSizeBytes(q) : null))
                 .toList();
 
         return FormDTO.from(form, questionDTOs);

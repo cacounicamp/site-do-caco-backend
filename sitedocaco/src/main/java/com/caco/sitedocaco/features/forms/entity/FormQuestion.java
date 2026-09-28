@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -79,4 +81,17 @@ public class FormQuestion {
 
     /** Idem {@link #minValue}, para o máximo. */
     private Integer maxValue;
+
+    /**
+     * Só para FILE. Vazio = aceita qualquer extensão do catálogo de
+     * {@code DocumentKind.supportedFormAttachmentExtensions()} (todas sabem ser verificadas por
+     * assinatura de bytes; não dá para liberar uma extensão fora desse catálogo).
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "form_question_allowed_extension", joinColumns = @JoinColumn(name = "question_id"))
+    @Column(name = "extension", length = 10, nullable = false)
+    private Set<String> allowedExtensions = new HashSet<>();
+
+    /** Só para FILE. Nulo = usa o padrão de {@code FileAnswerValidator.DEFAULT_MAX_SIZE_BYTES}. */
+    private Integer maxFileSizeBytes;
 }

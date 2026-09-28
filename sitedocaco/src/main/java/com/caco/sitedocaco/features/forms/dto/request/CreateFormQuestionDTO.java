@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.util.Set;
+
 /** A pergunta é adicionada ao final do formulário; use o endpoint de reordenação para movê-la. */
 public record CreateFormQuestionDTO(
         @NotBlank(message = "O código é obrigatório")
@@ -38,6 +40,8 @@ public record CreateFormQuestionDTO(
         Integer minValue,
         Integer maxValue,
         String showIfQuestion,
-        String showIfOption
+        String showIfOption,
+        Set<String> allowedExtensions,
+        Integer maxFileSizeBytes
 ) implements QuestionConfig {
 }

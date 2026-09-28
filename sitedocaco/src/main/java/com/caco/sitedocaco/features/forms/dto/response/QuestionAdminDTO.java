@@ -4,6 +4,7 @@ import com.caco.sitedocaco.features.forms.entity.FormQuestion;
 import com.caco.sitedocaco.features.forms.entity.QuestionType;
 import com.caco.sitedocaco.features.forms.entity.TextFormat;
 
+import java.util.Set;
 import java.util.UUID;
 
 public record QuestionAdminDTO(
@@ -22,7 +23,11 @@ public record QuestionAdminDTO(
         Integer maxValue,
         ConditionDTO showIf,
         /** Com respostas, o tipo e o conjunto de opções ficam travados e a pergunta não pode ser excluída. */
-        boolean hasAnswers
+        boolean hasAnswers,
+        /** Só para FILE. Valor configurado (vazio = usa o catálogo completo por padrão). */
+        Set<String> allowedExtensions,
+        /** Só para FILE. Valor configurado (nulo = usa o padrão de 3MB). */
+        Integer maxFileSizeBytes
 ) {
     public static QuestionAdminDTO from(FormQuestion question, boolean hasAnswers) {
         return new QuestionAdminDTO(
@@ -40,7 +45,9 @@ public record QuestionAdminDTO(
                 question.getMinValue(),
                 question.getMaxValue(),
                 ConditionDTO.fromQuestion(question),
-                hasAnswers
+                hasAnswers,
+                question.getAllowedExtensions(),
+                question.getMaxFileSizeBytes()
         );
     }
 }

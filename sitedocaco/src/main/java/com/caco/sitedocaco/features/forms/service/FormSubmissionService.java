@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -64,12 +65,15 @@ public class FormSubmissionService {
     private final UserService userService;
     private final FileStorage fileStorage;
 
+    // ── modo de resposta única ───────────────────────────────────────────────
+
     @Transactional(readOnly = true)
     public MySubmissionDTO getMySubmission(String slug) {
         Form form = getVisibleForm(slug);
+        assertSingleMode(form);
         User user = userService.getCurrentUser();
 
-        return submissionRepository.findByFormAndUser(form, user)
+        return submissionRepository.findFirstByFormAndUserOrderByCreatedAtAsc(form, user)
                 .map(submission -> MySubmissionDTO.from(submission, answerRepository.findBySubmission(submission)))
                 .orElseGet(MySubmissionDTO::empty);
     }
@@ -82,10 +86,130 @@ public class FormSubmissionService {
     @Transactional
     public MySubmissionDTO submit(String slug, SubmitFormRequestDTO request) {
         Form form = getOpenForm(slug);
+        assertSingleMode(form);
         User user = userService.getCurrentUser();
-        FormSubmission submission = getOrCreateSubmission(form, user);
+        FormSubmission submission = submissionRepository.findFirstByFormAndUserOrderByCreatedAtAsc(form, user)
+                .orElseGet(() -> createBareSubmission(form, user));
+        assertEditable(form, submission);
+        return applyAnswers(form, submission, request);
+    }
+
+    @Transactional
+    public AnswerDTO uploadFile(String slug, String questionCode, MultipartFile file) throws IOException {
+        Form form = getOpenForm(slug);
+        assertSingleMode(form);
+        FormQuestion question = getFileQuestion(form, questionCode);
+        User user = userService.getCurrentUser();
+        FormSubmission submission = submissionRepository.findFirstByFormAndUserOrderByCreatedAtAsc(form, user)
+                .orElseGet(() -> createBareSubmission(form, user));
+        return uploadFileToSubmission(form, submission, question, file);
+    }
+
+    /** Idempotente: sem arquivo anexado, não faz nada. */
+    @Transactional
+    public void removeFile(String slug, String questionCode) {
+        Form form = getOpenForm(slug);
+        assertSingleMode(form);
+        FormQuestion question = getFileQuestion(form, questionCode);
+
+        FormSubmission submission = submissionRepository
+                .findFirstByFormAndUserOrderByCreatedAtAsc(form, userService.getCurrentUser())
+                .orElse(null);
+        if (submission == null) {
+            return;
+        }
+        removeFileFromSubmission(form, submission, question);
+    }
+
+    // ── modo de múltiplas respostas ──────────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public List<MySubmissionDTO> listMySubmissions(String slug) {
+        Form form = getVisibleForm(slug);
+        assertMultiMode(form);
+        User user = userService.getCurrentUser();
+
+        return submissionRepository.findByFormAndUserOrderByCreatedAtAsc(form, user).stream()
+                .map(s -> MySubmissionDTO.from(s, answerRepository.findBySubmission(s)))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public MySubmissionDTO getMySubmissionEntry(String slug, UUID submissionId) {
+        Form form = getVisibleForm(slug);
+        assertMultiMode(form);
+        FormSubmission submission = getOwnedSubmission(form, submissionId);
+        return MySubmissionDTO.from(submission, answerRepository.findBySubmission(submission));
+    }
+
+    /**
+     * Cria uma entrada em branco (sem respostas), para então anexar arquivos e/ou chamar
+     * {@link #updateSubmissionEntry} — o mesmo desenho em duas fases do modo de resposta única, só que
+     * aqui o id da entrada precisa ser explícito desde o início (não há como inferi-lo de form+usuário).
+     */
+    @Transactional
+    public MySubmissionDTO createSubmissionEntry(String slug) {
+        Form form = getOpenForm(slug);
+        assertMultiMode(form);
+        User user = userService.getCurrentUser();
+
+        Integer max = form.getMaxSubmissionsPerUser();
+        if (max != null && submissionRepository.countByFormAndUser(form, user) >= max) {
+            throw new BusinessRuleException(
+                    "Você já atingiu o número máximo de envios para este formulário (" + max + ").");
+        }
+
+        FormSubmission submission = createBareSubmission(form, user);
+        return MySubmissionDTO.from(submission, List.of());
+    }
+
+    @Transactional
+    public MySubmissionDTO updateSubmissionEntry(String slug, UUID submissionId, SubmitFormRequestDTO request) {
+        Form form = getOpenForm(slug);
+        assertMultiMode(form);
+        FormSubmission submission = getOwnedSubmission(form, submissionId);
+        assertEditable(form, submission);
+        return applyAnswers(form, submission, request);
+    }
+
+    @Transactional
+    public void deleteSubmissionEntry(String slug, UUID submissionId) {
+        Form form = getOpenForm(slug);
+        assertMultiMode(form);
+        FormSubmission submission = getOwnedSubmission(form, submissionId);
         assertEditable(form, submission);
 
+        List<FormAnswer> answers = answerRepository.findBySubmission(submission);
+        List<String> fileUrls = answers.stream().map(FormAnswer::getFileUrl).filter(Objects::nonNull).toList();
+
+        // Precisa vir antes do delete da submissão: não há coleção mapeada Submission->Answer para o
+        // JPA cascatear sozinho, e o MySQL rejeitaria por FK se a ordem fosse invertida.
+        answerRepository.deleteAll(answers);
+        submissionRepository.delete(submission);
+        deleteFilesAfterCommit(fileUrls);
+    }
+
+    @Transactional
+    public AnswerDTO uploadFileToEntry(String slug, UUID submissionId, String questionCode, MultipartFile file) throws IOException {
+        Form form = getOpenForm(slug);
+        assertMultiMode(form);
+        FormQuestion question = getFileQuestion(form, questionCode);
+        FormSubmission submission = getOwnedSubmission(form, submissionId);
+        return uploadFileToSubmission(form, submission, question, file);
+    }
+
+    @Transactional
+    public void removeFileFromEntry(String slug, UUID submissionId, String questionCode) {
+        Form form = getOpenForm(slug);
+        assertMultiMode(form);
+        FormQuestion question = getFileQuestion(form, questionCode);
+        FormSubmission submission = getOwnedSubmission(form, submissionId);
+        removeFileFromSubmission(form, submission, question);
+    }
+
+    // ── núcleo compartilhado ─────────────────────────────────────────────────
+
+    private MySubmissionDTO applyAnswers(Form form, FormSubmission submission, SubmitFormRequestDTO request) {
         List<FormQuestion> questions = questionRepository.findByFormAndActiveTrueOrderByDisplayOrderAscIdAsc(form);
         Map<String, AnswerInputDTO> inputs = indexInputs(request.answers(), questions);
         Map<UUID, Map<String, FormOption>> optionsBySet = loadActiveOptionsBySet(questions);
@@ -150,20 +274,13 @@ public class FormSubmissionService {
         return MySubmissionDTO.from(submission, answerRepository.findBySubmission(submission));
     }
 
-    /**
-     * Anexa (ou substitui) o arquivo de uma pergunta FILE. Pode ser chamado antes do primeiro envio do
-     * formulário; se a pergunta acabar oculta por uma condicional, o arquivo é descartado no envio.
-     */
-    @Transactional
-    public AnswerDTO uploadFile(String slug, String questionCode, MultipartFile file) throws IOException {
+    /** Anexa (ou substitui) o arquivo de uma pergunta FILE nesta entrada. */
+    private AnswerDTO uploadFileToSubmission(Form form, FormSubmission submission, FormQuestion question, MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new BusinessRuleException("O arquivo é obrigatório.");
         }
-
-        Form form = getOpenForm(slug);
-        FormQuestion question = getFileQuestion(form, questionCode);
-        FormSubmission submission = getOrCreateSubmission(form, userService.getCurrentUser());
         assertEditable(form, submission);
+        FileAnswerValidator.validate(question, file);
 
         StoredFile stored = fileStorage.store(UploadRequest.of(file, DocumentKind.FORM_ATTACHMENT));
 
@@ -180,16 +297,7 @@ public class FormSubmissionService {
         return AnswerDTO.from(answer);
     }
 
-    /** Idempotente: sem arquivo anexado, não faz nada. */
-    @Transactional
-    public void removeFile(String slug, String questionCode) {
-        Form form = getOpenForm(slug);
-        FormQuestion question = getFileQuestion(form, questionCode);
-
-        FormSubmission submission = submissionRepository.findByFormAndUser(form, userService.getCurrentUser()).orElse(null);
-        if (submission == null) {
-            return;
-        }
+    private void removeFileFromSubmission(Form form, FormSubmission submission, FormQuestion question) {
         assertEditable(form, submission);
 
         FormAnswer answer = answerRepository.findBySubmissionAndQuestion(submission, question).orElse(null);
@@ -224,19 +332,35 @@ public class FormSubmissionService {
         return form;
     }
 
+    private void assertSingleMode(Form form) {
+        if (form.isAllowMultipleSubmissions()) {
+            throw new BusinessRuleException("Este formulário aceita múltiplas respostas; use os endpoints de múltiplos envios (/submissions).");
+        }
+    }
+
+    private void assertMultiMode(Form form) {
+        if (!form.isAllowMultipleSubmissions()) {
+            throw new BusinessRuleException("Este formulário não aceita múltiplas respostas.");
+        }
+    }
+
     private FormQuestion getFileQuestion(Form form, String questionCode) {
         return questionRepository.findByFormAndCode(form, questionCode)
                 .filter(q -> q.isActive() && q.getType() == QuestionType.FILE)
                 .orElseThrow(() -> new ResourceNotFoundException("Pergunta de arquivo inexistente."));
     }
 
-    private FormSubmission getOrCreateSubmission(Form form, User user) {
-        return submissionRepository.findByFormAndUser(form, user).orElseGet(() -> {
-            FormSubmission created = new FormSubmission();
-            created.setForm(form);
-            created.setUser(user);
-            return submissionRepository.save(created);
-        });
+    private FormSubmission createBareSubmission(Form form, User user) {
+        FormSubmission submission = new FormSubmission();
+        submission.setForm(form);
+        submission.setUser(user);
+        return submissionRepository.save(submission);
+    }
+
+    /** 404 em vez de 403 para não confirmar a um usuário que uma entrada de outro usuário existe. */
+    private FormSubmission getOwnedSubmission(Form form, UUID submissionId) {
+        return submissionRepository.findByIdAndFormAndUser(submissionId, form, userService.getCurrentUser())
+                .orElseThrow(() -> new ResourceNotFoundException("Envio não encontrado."));
     }
 
     private void assertEditable(Form form, FormSubmission submission) {

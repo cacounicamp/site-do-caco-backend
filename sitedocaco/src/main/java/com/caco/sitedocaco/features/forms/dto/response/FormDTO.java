@@ -12,6 +12,9 @@ public record FormDTO(
         String description,
         FormStatus status,
         boolean allowEditAfterSubmit,
+        /** Indica se o front deve usar /user/forms/{slug}/submission (false) ou /submissions (true). */
+        boolean allowMultipleSubmissions,
+        Integer maxSubmissionsPerUser,
         List<QuestionDTO> questions
 ) {
     public static FormDTO from(Form form, List<QuestionDTO> questions) {
@@ -21,6 +24,8 @@ public record FormDTO(
                 form.getDescription(),
                 form.getStatus(),
                 form.isAllowEditAfterSubmit(),
+                form.isAllowMultipleSubmissions(),
+                form.getMaxSubmissionsPerUser(),
                 questions
         );
     }

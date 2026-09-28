@@ -18,16 +18,20 @@ import com.caco.sitedocaco.features.forms.repository.FormRepository;
 import com.caco.sitedocaco.features.forms.repository.OptionSetRepository;
 import com.caco.sitedocaco.shared.exception.BusinessRuleException;
 import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
+import com.caco.sitedocaco.shared.storage.kind.DocumentKind;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -147,6 +151,8 @@ public class FormQuestionAdminService {
         question.setTextFormat(config.textFormat());
         question.setMinValue(config.minValue());
         question.setMaxValue(config.maxValue());
+        question.setAllowedExtensions(resolveAllowedExtensions(type, config.allowedExtensions()));
+        question.setMaxFileSizeBytes(type == QuestionType.FILE ? config.maxFileSizeBytes() : null);
         resolveShowIf(question, config);
     }
 
@@ -186,6 +192,41 @@ public class FormQuestionAdminService {
                 throw new BusinessRuleException("O máximo de caracteres deve estar entre 1 e " + limit + ".");
             }
         }
+
+        if (type != QuestionType.FILE) {
+            if (config.allowedExtensions() != null && !config.allowedExtensions().isEmpty()) {
+                throw new BusinessRuleException("Extensões permitidas só se aplicam a perguntas de arquivo.");
+            }
+            if (config.maxFileSizeBytes() != null) {
+                throw new BusinessRuleException("Tamanho máximo de arquivo só se aplica a perguntas de arquivo.");
+            }
+        } else if (config.maxFileSizeBytes() != null) {
+            long ceiling = DocumentKind.FORM_ATTACHMENT.maxSizeBytes();
+            if (config.maxFileSizeBytes() < 1 || config.maxFileSizeBytes() > ceiling) {
+                throw new BusinessRuleException("O tamanho máximo deve estar entre 1 byte e " + (ceiling / (1024 * 1024)) + "MB.");
+            }
+        }
+    }
+
+    /** Normaliza para minúsculas e valida contra o catálogo de extensões que sabemos verificar por assinatura. */
+    private Set<String> resolveAllowedExtensions(QuestionType type, Set<String> raw) {
+        if (type != QuestionType.FILE || raw == null || raw.isEmpty()) {
+            // Nunca um Set imutável: o Hibernate precisa poder sincronizar esta coleção (@ElementCollection) no merge().
+            return new HashSet<>();
+        }
+
+        Set<String> normalized = raw.stream()
+                .map(e -> e.trim().toLowerCase(Locale.ROOT))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> catalog = DocumentKind.supportedFormAttachmentExtensions();
+        Set<String> unknown = normalized.stream()
+                .filter(e -> !catalog.contains(e))
+                .collect(Collectors.toCollection(TreeSet::new));
+        if (!unknown.isEmpty()) {
+            throw new BusinessRuleException("Extensão não suportada: " + String.join(", ", unknown)
+                    + ". Suportadas: " + String.join(", ", new TreeSet<>(catalog)) + ".");
+        }
+        return normalized;
     }
 
     /** Condicional: precisa apontar para uma pergunta de escolha do mesmo formulário que venha ANTES desta. */

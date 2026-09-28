@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -57,14 +58,22 @@ class DocumentKindTest {
     }
 
     @Test
-    void formAttachmentRejectsFilesAbove3MB() {
+    void formAttachmentRejectsFilesAboveTheHardCeiling() {
+        // Este teto é só o limite absoluto de segurança; o limite efetivo por pergunta (mais
+        // restritivo, ex.: 3MB por padrão) é responsabilidade de FileAnswerValidator, não desta classe.
         DocumentKind kind = DocumentKind.FORM_ATTACHMENT;
-        byte[] big = new byte[3 * 1024 * 1024 + 1];
+        byte[] big = new byte[(int) kind.maxSizeBytes() + 1];
         System.arraycopy(pdf(), 0, big, 0, pdf().length);
 
         assertThatThrownBy(() -> kind.validate(request(kind, "cv.pdf", "application/pdf", big)))
                 .isInstanceOf(BusinessRuleException.class)
-                .hasMessageContaining("3MB");
+                .hasMessageContaining(String.valueOf(kind.maxSizeBytes() / (1024 * 1024)) + "MB");
+    }
+
+    @Test
+    void supportedFormAttachmentExtensionsMatchesTheSignatureCatalog() {
+        assertThat(DocumentKind.supportedFormAttachmentExtensions())
+                .containsExactlyInAnyOrder("pdf", "jpg", "jpeg", "png", "docx", "doc");
     }
 
     @Test

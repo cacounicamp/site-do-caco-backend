@@ -6,6 +6,7 @@ import com.caco.sitedocaco.shared.storage.UploadRequest;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public enum DocumentKind implements FileKind {
 
@@ -23,8 +24,13 @@ public enum DocumentKind implements FileKind {
         }
     },
 
-    /** Anexo enviado por usuário em resposta de formulário (ex.: currículo). */
-    FORM_ATTACHMENT("form-attachment", 3L * 1024 * 1024) {
+    /**
+     * Anexo enviado por usuário em resposta de formulário (ex.: currículo). O admin configura, por
+     * pergunta, um subconjunto de {@link #supportedFormAttachmentExtensions()} e um tamanho máximo
+     * mais restritivo (ver {@code features.forms.service.FileAnswerValidator}); o limite abaixo é
+     * só o teto absoluto de segurança, alinhado a {@code spring.servlet.multipart.max-file-size}.
+     */
+    FORM_ATTACHMENT("form-attachment", 15L * 1024 * 1024) {
         @Override
         void validateContent(UploadRequest request) {
             List<byte[]> signatures = SIGNATURES.get(extensionOf(request.originalFilename()));
@@ -62,6 +68,14 @@ public enum DocumentKind implements FileKind {
 
     @Override
     public Category category() { return Category.DOCUMENT; }
+
+    /** Teto absoluto de tamanho desta constante; políticas mais restritivas ficam por conta de quem chama. */
+    public long maxSizeBytes() { return maxSizeBytes; }
+
+    /** Extensões que {@link #FORM_ATTACHMENT} sabe verificar por assinatura de bytes. */
+    public static Set<String> supportedFormAttachmentExtensions() {
+        return SIGNATURES.keySet();
+    }
 
     @Override
     public void validate(UploadRequest request) {
