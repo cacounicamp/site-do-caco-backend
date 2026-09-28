@@ -4,6 +4,7 @@ import com.caco.sitedocaco.shared.dto.response.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -48,6 +49,11 @@ public class GlobalExceptionHandler {
                 errors.append(String.format("[%s: %s] ", error.getField(), error.getDefaultMessage()))
         );
         return buildResponse(HttpStatus.BAD_REQUEST, errors.toString(), request);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUnreadableBody(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido ou malformado.", request);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

@@ -5,71 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0b33c67e-0d61-436f-abf4-73c3c23a795b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/SitedocacoApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/config/SecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/AnalyticsLog$AnalyticsType.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/AnalyticsLog.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/User$Role.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/event/Event$EventImportance.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/event/Event$EventStatus.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/event/Event$EventType.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/event/Event.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/event/EventGalleryItem$MediaType.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/event/EventGalleryItem.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/exam/Exam$ExamType.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/exam/Exam.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/exam/Subject.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/home/Banner.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/home/News.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/home/Warning.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/manual/ArticleFeedback.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/manual/ManualArticle.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/manual/ManualCategory.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/manual/ManualChapter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/sticker/RedemptionCode.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/sticker/Sticker.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/sticker/UserSticker.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/store/Product$ProductStatus.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/store/Product.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/classes/com/caco/sitedocaco/entity/store/ProductVariation.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/resources/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/out/production/resources/application.properties.example" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sitedocaco/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/config/SecurityConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/AnalyticsLog.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/User.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/event/Event.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/event/EventGalleryItem.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/exam/Exam.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/exam/Subject.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/home/Banner.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/home/News.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/home/Warning.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/manual/ArticleFeedback.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/manual/ManualArticle.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/manual/ManualCategory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/manual/ManualChapter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/sticker/RedemptionCode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/sticker/Sticker.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/sticker/UserSticker.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/store/Product.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/java/com/caco/sitedocaco/entity/store/ProductVariation.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/sitedocaco/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitedocaco/src/main/resources/application.properties.example" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="37oknpYUyABOCbmXJkZhOLFOc4B" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -78,13 +38,44 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "Spring Boot.Main.executor": "Run",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "development",
+    "git-widget-placeholder": "22-criacao-do-formulario-de-inscricao-e-substituicao-do-userprofile",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/genazemildo/Documents/GitHub/sito-do-caco-backend/sitedocaco"
+    "last_opened_file_path": "/home/genazemildo/Documents/GitHub/site-do-caco-backend/sitedocaco/src/main/resources",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/sitedocaco/src/main/resources" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ACTIVE_PROFILES" value="local" />
+      <option name="ALTERNATIVE_JRE_PATH" value="ms-21" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="sitedocaco" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.caco.sitedocaco.SitedocacoApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.24374.151" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.24374.151" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="0b33c67e-0d61-436f-abf4-73c3c23a795b" name="Changes" comment="" />
@@ -94,6 +85,9 @@
       <updated>1767576982639</updated>
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
