@@ -2,6 +2,8 @@
 
 Backend da aplicação do Centro Acadêmico da Computação, desenvolvido com Spring Boot, Maven e Java 21.
 
+A versão atual do site do CACo pode ser acessado em https://caco.ic.unicamp.br/
+
 ## Arquitetura
 
 O backend segue uma arquitetura modular em camadas, organizada por domínio:
