@@ -14,7 +14,6 @@ O backend segue uma arquitetura modular em camadas, organizada por domínio:
 - `entity`: entidades persistidas pelo JPA;
 - `dto/request` e `dto/response`: objetos de entrada e saída da API.
 
-Esse projeto não utiliza o padrão MVVM (Model-View-ViewModel), pois é um backend REST e não possui uma camada de View ou ViewModel.
 
 ## Configuração no IntelliJ IDEA
 
