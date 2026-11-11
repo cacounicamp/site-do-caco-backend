@@ -17,7 +17,7 @@ spring.jpa.show-sql=true
 # === Configuração OAuth2 (Google) ===
 spring.security.oauth2.client.registration.google.client-id=
 spring.security.oauth2.client.registration.google.client-secret=
-spring.security.oauth2.client.registration.google.scope=profile,email,address,phone
+spring.security.oauth2.client.registration.google.scope=profile,email
 spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
 spring.security.oauth2.client.registration.google.client-name=Site do CACo
 
@@ -39,11 +39,3 @@ server.tomcat.max-part-count=13
 # Timeouts (importante para uploads grandes)
 server.servlet.connection-timeout=30s
 spring.mvc.async.request-timeout=30s
-
-# Email
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-#spring.mail.username=
-#spring.mail.password=
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true

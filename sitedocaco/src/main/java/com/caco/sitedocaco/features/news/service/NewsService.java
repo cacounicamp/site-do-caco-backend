@@ -1,0 +1,161 @@
+package com.caco.sitedocaco.features.news.service;
+
+import com.caco.sitedocaco.features.news.dto.request.CreateNewsDTO;
+import com.caco.sitedocaco.features.news.dto.request.UpdateNewsDTO;
+import com.caco.sitedocaco.features.news.dto.response.NewsDetailDTO;
+import com.caco.sitedocaco.features.news.dto.response.NewsSummaryDTO;
+import com.caco.sitedocaco.features.users.entity.User;
+import com.caco.sitedocaco.features.users.service.UserService;
+import com.caco.sitedocaco.features.news.entity.News;
+import com.caco.sitedocaco.shared.exception.ResourceNotFoundException;
+import com.caco.sitedocaco.features.news.repository.NewsRepository;
+import com.caco.sitedocaco.shared.storage.FileStorage;
+import com.caco.sitedocaco.shared.storage.UploadRequest;
+import com.caco.sitedocaco.shared.storage.kind.ImageKind;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class NewsService {
+
+    private final NewsRepository newsRepository;
+    private final UserService userService;
+    private final FileStorage fileStorage;
+
+    @Transactional(readOnly = true)
+    public List<NewsSummaryDTO> getLatestNews(int limit) {
+        return newsRepository.findAllSummaries(PageRequest.of(0, limit)).map(this::toSummary).getContent();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<NewsSummaryDTO> getAllNews(Pageable pageable) {
+        return newsRepository.findAllSummaries(pageable).map(this::toSummary);
+    }
+
+    @Transactional(readOnly = true)
+    public NewsDetailDTO getNewsBySlug(String slug) {
+        return newsRepository.findDetailBySlug(slug).map(this::toDetail)
+                .orElseThrow(() -> new ResourceNotFoundException("Notícia não encontrada: " + slug));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<NewsSummaryDTO> getNewsByAuthor(UUID authorId, Pageable pageable) {
+        return newsRepository.findAllByAuthor(authorId, pageable).map(this::toSummary);
+    }
+
+    @Transactional(readOnly = true)
+    public NewsDetailDTO getNewsBySlugAndAuthor(String slug, UUID authorId) {
+        return newsRepository.findBySlugAndAuthor(slug, authorId).map(this::toDetail)
+                .orElseThrow(() -> new ResourceNotFoundException("Notícia não encontrada ou você não é o autor"));
+    }
+
+    @Transactional
+    public NewsDetailDTO createNews(CreateNewsDTO dto, UUID authorId) throws IOException {
+        User author = userService.getUserById(authorId);
+
+        // Valida unicidade do slug
+        if (newsRepository.existsBySlug(dto.slug())) {
+            throw new IllegalArgumentException("Já existe uma notícia com este slug: " + dto.slug());
+        }
+
+        News news = new News();
+        news.setTitle(dto.title());
+        news.setSlug(dto.slug());
+        news.setSummary(dto.summary());
+        news.setContent(dto.content());
+        news.setAuthor(author);
+        news.setPublishDate(LocalDateTime.now());
+
+        if (dto.coverImage() != null && !dto.coverImage().isEmpty()) {
+            String url = fileStorage.store(UploadRequest.of(dto.coverImage(), ImageKind.NEWS_COVER)).url();
+            news.setCoverImage(url);
+        }
+
+        return toDetailDTO(newsRepository.save(news));
+    }
+
+    @Transactional
+    public NewsDetailDTO updateNews(UUID id, UpdateNewsDTO dto, UUID requesterId, boolean isAdmin) throws IOException {
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notícia não encontrada"));
+
+        validateOwnership(news, requesterId, isAdmin);
+
+        if (dto.title() != null && !dto.title().isBlank()) {
+            news.setTitle(dto.title());
+        }
+
+        if (dto.slug() != null && !dto.slug().isBlank()) {
+            // Se o slug está sendo alterado, valida unicidade
+            if (!dto.slug().equals(news.getSlug()) && newsRepository.existsBySlug(dto.slug())) {
+                throw new IllegalArgumentException("Já existe uma notícia com este slug: " + dto.slug());
+            }
+            news.setSlug(dto.slug());
+        }
+
+        if (dto.summary() != null) news.setSummary(dto.summary());
+        if (dto.content() != null) news.setContent(dto.content());
+
+        // Remoção explícita da imagem
+        if (Boolean.TRUE.equals(dto.removeCoverImage())) {
+            news.setCoverImage(null);
+        }
+        // Upload de nova imagem (sobrescreve remoção se ambos vierem, nova imagem tem prioridade)
+        if (dto.coverImage() != null && !dto.coverImage().isEmpty()) {
+            String url = fileStorage.store(UploadRequest.of(dto.coverImage(), ImageKind.NEWS_COVER)).url();
+            news.setCoverImage(url);
+        }
+
+        return toDetailDTO(newsRepository.save(news));
+    }
+
+    @Transactional
+    public void deleteNews(UUID id, UUID requesterId, boolean isAdmin) {
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notícia não encontrada"));
+
+        validateOwnership(news, requesterId, isAdmin);
+
+        newsRepository.delete(news);
+    }
+
+    private void validateOwnership(News news, UUID requesterId, boolean isAdmin) {
+        if (isAdmin) return;
+        if (!news.getAuthor().getId().equals(requesterId)) {
+            throw new AccessDeniedException("Você só pode alterar notícias criadas por você.");
+        }
+    }
+
+    private NewsDetailDTO toDetailDTO(News news) {
+        return new NewsDetailDTO(
+                news.getId(),
+                news.getTitle(),
+                news.getSlug(),
+                news.getSummary(),
+                news.getContent(),
+                news.getCoverImage(),
+                news.getPublishDate()
+        );
+    }
+
+    private NewsSummaryDTO toSummary(NewsSummaryDTO dto) {
+        return new NewsSummaryDTO(dto.id(), dto.title(), dto.slug(),
+                dto.summary(), dto.coverImage(), dto.publishDate());
+    }
+
+    private NewsDetailDTO toDetail(NewsDetailDTO dto) {
+        return new NewsDetailDTO(dto.id(), dto.title(), dto.slug(),
+                dto.summary(), dto.content(), dto.coverImage(), dto.publishDate());
+    }
+}
