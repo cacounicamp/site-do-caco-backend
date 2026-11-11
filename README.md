@@ -1,6 +1,18 @@
 # Site do CACo — backend
 
-Backend da aplicação do CACo, desenvolvido com Spring Boot, Maven e Java 21.
+Backend da aplicação do Centro Acadêmico da Computação, desenvolvido com Spring Boot, Maven e Java 21.
+
+## Arquitetura
+
+O backend segue uma arquitetura modular em camadas, organizada por domínio:
+
+- `controller`: endpoints REST e tratamento das requisições;
+- `service`: regras de negócio;
+- `repository`: acesso aos dados;
+- `entity`: entidades persistidas pelo JPA;
+- `dto/request` e `dto/response`: objetos de entrada e saída da API.
+
+Esse projeto não utiliza o padrão MVVM (Model-View-ViewModel), pois é um backend REST e não possui uma camada de View ou ViewModel.
 
 ## Configuração no IntelliJ IDEA
 
@@ -74,4 +86,4 @@ Para contribuir:
 
 ## Uso de Large Language Models (LLMs)
 
-Para manter um codigo o mais legível e eficiente possivel, gostariamos de pedir que todo codigo feito por LLMs como Codex, claude, gemini, copilot, etc, seja revisado antes de fazer um commit
+Para manter o código legível e eficiente, todo código gerado por LLMs, como Codex, Claude, Gemini ou Copilot, deve ser revisado antes de ser incluído em um commit.
