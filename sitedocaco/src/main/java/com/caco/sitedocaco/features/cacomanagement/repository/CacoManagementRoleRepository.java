@@ -1,6 +1,6 @@
-package com.caco.sitedocaco.repository;
+package com.caco.sitedocaco.features.cacomanagement.repository;
 
-import com.caco.sitedocaco.entity.caco.CacoManagementRole;
+import com.caco.sitedocaco.features.cacomanagement.entity.CacoManagementRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,9 +1,9 @@
-package com.caco.sitedocaco.dto.response.caco;
+package com.caco.sitedocaco.features.cacomanagement.dto.response;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
-import com.caco.sitedocaco.entity.caco.CacoManagement;
+import com.caco.sitedocaco.features.cacomanagement.entity.CacoManagement;
 
 public record CacoManagementResponseDTO(
     UUID id,

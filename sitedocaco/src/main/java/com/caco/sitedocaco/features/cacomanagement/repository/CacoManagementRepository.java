@@ -1,6 +1,6 @@
-package com.caco.sitedocaco.repository;
+package com.caco.sitedocaco.features.cacomanagement.repository;
 
-import com.caco.sitedocaco.entity.caco.CacoManagement;
+import com.caco.sitedocaco.features.cacomanagement.entity.CacoManagement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

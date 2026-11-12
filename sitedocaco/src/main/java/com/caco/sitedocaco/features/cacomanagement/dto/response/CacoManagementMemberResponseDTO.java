@@ -1,6 +1,6 @@
-package com.caco.sitedocaco.dto.response.caco;
+package com.caco.sitedocaco.features.cacomanagement.dto.response;
 
-import com.caco.sitedocaco.entity.caco.CacoManagementMember;
+import com.caco.sitedocaco.features.cacomanagement.entity.CacoManagementMember;
 
 import java.util.UUID;
 

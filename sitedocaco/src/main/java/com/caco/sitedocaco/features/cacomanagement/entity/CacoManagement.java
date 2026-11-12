@@ -1,4 +1,4 @@
-package com.caco.sitedocaco.entity.caco;
+package com.caco.sitedocaco.features.cacomanagement.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

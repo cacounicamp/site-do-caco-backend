@@ -1,4 +1,4 @@
-package com.caco.sitedocaco.dto.request.caco;
+package com.caco.sitedocaco.features.cacomanagement.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
